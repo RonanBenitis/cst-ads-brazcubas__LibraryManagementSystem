@@ -20,22 +20,33 @@ public class DatabaseConfig {
     public static void createTables() throws SQLException {
         try (Connection conexao = getConnection()) {
             DatabaseMetaData dbm = conexao.getMetaData();
-            ResultSet tables = dbm.getTables(null, null, "livro", null); // getTables(catalog, schemaPattern, tableNamePattern, types)
-            if (!tables.next()) { // Se a tabela não existir, criar.
-                String sql = "CREATE TABLE livro (" +
+            // Snipet de validação existencia tabela livro
+            ResultSet tablesLivro = dbm.getTables(null, null, "livro", null); // getTables(catalog, schemaPattern, tableNamePattern, types)
+            if (!tablesLivro.next()) {
+                String sqlLivro = 
+                            "CREATE TABLE livro (" +
                                 "id serial PRIMARY KEY," +
-                                "titulo varchar(100)," +
-                                "autor varchar(100)," +
-                                "numPaginas int" +
-                            ");" +
-                            "CREATE TABLE livroEmprestado (" +
-                                "id serial PRIMARY KEY," +
-                                "titulo varchar(100)," +
-                                "autor varchar(100)," +
-                                "numPaginas int" +
+                                "titulo varchar(100) NOT NULL," +
+                                "autor varchar(100) NOT NULL," +
+                                "numPaginas int NOT NULL" +
                             ");";
                 Statement statement = conexao.createStatement();
-                statement.execute(sql);
+                statement.execute(sqlLivro);
+            }
+            // Snipet de validação da existencia tabela livroEmprestimo
+            ResultSet tablesLivroEmpr = dbm.getTables(null, null, "livroemprestado", null); 
+            if (!tablesLivroEmpr.next()) {
+                // Detalhe! Postgres, se não citarmos tipo \"LivroEmprestado\" no CREATE TABLE, ele cria tudo em minusculo por padrao, viu?
+                String sqlLivroEmpr = 
+                            "CREATE TABLE livroemprestado (" +
+                                "id serial PRIMARY KEY," +
+                                "id_livro int unique," +
+                                
+                                "CONSTRAINT id_livro_fk FOREIGN KEY (id_livro)" +
+                                    "REFERENCES livro(id)" +
+                            ");";
+                Statement statement = conexao.createStatement();
+                statement.execute(sqlLivroEmpr);
             }
         } catch (SQLException e) {
             e.printStackTrace();
