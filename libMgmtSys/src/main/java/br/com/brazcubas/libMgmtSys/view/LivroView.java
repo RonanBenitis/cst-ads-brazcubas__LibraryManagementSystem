@@ -19,7 +19,4 @@ public class LivroView {
             System.out.println("ID: " + livro.getId() + ", Título: " + livro.getTitulo());
         }
     }
-    public void mostrarMensagem(String mensagem) {
-        System.out.println(mensagem);
-    }
 }

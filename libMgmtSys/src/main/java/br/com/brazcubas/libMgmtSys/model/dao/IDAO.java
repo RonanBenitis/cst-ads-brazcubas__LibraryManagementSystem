@@ -9,4 +9,7 @@ public interface IDAO<T extends AbstractEntity> {
     void excluir(int id);
     T buscar(int id);
     List<T> listar();
+    void emprestar(T entidade);
+    void devolver(T entidade);
+    List<T> listarEmprest();
 }

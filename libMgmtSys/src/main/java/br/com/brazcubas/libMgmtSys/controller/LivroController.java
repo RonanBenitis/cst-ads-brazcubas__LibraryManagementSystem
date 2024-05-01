@@ -34,4 +34,8 @@ public class LivroController {
       public List<Livro> listarLivros() {
         return livroDAO.listar();
       }
+
+      public List<Livro> listarLivrosEmprestados() {
+        return livroDAO.listarEmprest();
+      }
 }
