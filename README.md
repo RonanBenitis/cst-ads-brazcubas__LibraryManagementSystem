@@ -27,7 +27,7 @@ Para simplificar, utilizei o controle de empréstimo de um Livro através das ta
 Uma atualização mais robusta para versões futuras seria administrar a quantidade de livros (quantidade emprestado, quantos em estoque e afins), além de Membro e Funcionarios (extendendo de Pessoas) como classes e tabelas também.
 
 ## PERSISTENCIA DE DADOS
-Banco dedados PostgreSQL: PostgreSQL localhost
-User: “postgres”
-Senha: “admin”
-DatabaseName: “db_libMgmtSys”
+- Banco dedados PostgreSQL: PostgreSQL localhost
+- User: “postgres”
+- Senha: “admin”
+- DatabaseName: “db_libMgmtSys”
