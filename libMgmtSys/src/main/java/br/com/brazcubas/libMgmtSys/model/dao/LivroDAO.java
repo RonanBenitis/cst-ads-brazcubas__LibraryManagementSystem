@@ -5,6 +5,9 @@ import java.util.List;
 
 import br.com.brazcubas.libMgmtSys.config.DatabaseConfig;
 import br.com.brazcubas.libMgmtSys.model.entity.Livro;
+// Pra setar a data do emprestimo
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 // query
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -57,9 +60,9 @@ public class LivroDAO implements IDAO<Livro> {
                 stmt.setInt(1, id);
 
                 stmt.executeUpdate();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -111,17 +114,65 @@ public class LivroDAO implements IDAO<Livro> {
         return null;
     }
 
-        // >>>>> OPERAÇÕES NA TABELA LIVROEMPRESTADO
+    // >>>>> OPERAÇÕES NA TABELA LIVROEMPRESTADO
+    @Override
+    public Livro buscarEmpr(int id) {
+        String sql = "SELECT * FROM livroemprestado WHERE id_livro = ?";
+
+        try (Connection connection = DatabaseConfig.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(sql)) {
+                stmt.setInt(1, id);
+
+                ResultSet rs = stmt.executeQuery();
+                if(rs.next()) {
+                    Livro livro = buscar(id);
+                    livro.setEmprestimoMembro(rs.getString("membro"));
+                    livro.setEmprestimoResponsavel(rs.getString("funcionario"));
+                    livro.setDt_emprestimo(rs.getString("dt_emprest"));
+                    
+                    return livro;
+                }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
     @Override
     public void emprestar(Livro entidade) {
-        // INSERT NO LIVRO EMPRESTADO. SE JÁ TIVER ID LÁ, NÃO INSERTAR
-        throw new UnsupportedOperationException("Unimplemented method 'emprestar'");
+        String sql = "INSERT INTO livroemprestado (membro, funcionario, dt_emprest, id_livro) VALUES (?, ?, ?, ?)";
+
+        try (Connection connection = DatabaseConfig.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(sql)) {
+                // No momento estou controlando a data de empréstimo como String. 
+                LocalDateTime agora = LocalDateTime.now();
+                DateTimeFormatter formatador = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                String dataFormatada = agora.format(formatador);
+
+                stmt.setString(1, entidade.getEmprestimoMembro());
+                stmt.setString(2, entidade.getEmprestimoResponsavel());
+                stmt.setString(3, dataFormatada);
+                stmt.setInt(4, entidade.getId());
+
+                stmt.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
     }
 
     @Override
-    public void devolver(Livro entidade) {
-        // DELETE DO LIVRO EMPRESTADO
-        throw new UnsupportedOperationException("Unimplemented method 'devolver'");
+    public void devolver(int id_livro) {
+        String sql = "DELETE FROM livroemprestado WHERE id_livro = ?";
+
+        try (Connection connection = DatabaseConfig.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(sql)) {
+                stmt.setInt(1, id_livro);
+
+                stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -135,11 +186,7 @@ public class LivroDAO implements IDAO<Livro> {
                 ResultSet rs = stmt.executeQuery();
 
                 while(rs.next()) {
-                    int id = rs.getInt("id");
-                    String titulo = rs.getString("titulo");
-                    String autor = rs.getString("autor");
-                    int numPaginas = rs.getInt("numPaginas");
-                    Livro livro = new Livro(id, titulo, autor, numPaginas);
+                    Livro livro = buscar(rs.getInt("id_livro"));
                     livros.add(livro);
                 }
 

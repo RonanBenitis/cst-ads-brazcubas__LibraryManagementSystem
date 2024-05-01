@@ -40,6 +40,9 @@ public class DatabaseConfig {
                 String sqlLivroEmpr = 
                             "CREATE TABLE livroemprestado (" +
                                 "id serial PRIMARY KEY," +
+                                "membro varchar(100) NOT NULL," +
+                                "funcionario varchar(100) NOT NULL," +
+                                "dt_emprest varchar(100) NOT NULL," +
                                 "id_livro int unique," +
                                 
                                 "CONSTRAINT id_livro_fk FOREIGN KEY (id_livro)" +

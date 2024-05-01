@@ -31,7 +31,10 @@ public class LibrarySystem {
                 case 3 -> atualizarLivro();
                 case 4 -> excluirLivro();
                 case 5 -> buscarLivro();
-                case 8 -> listarLivrosEmprestados();
+                case 6 -> emprestarLivro();
+                case 7 -> devolverLivro();
+                case 8 -> buscarEmpre();
+                case 9 -> listarLivrosEmprestados();
                 case 0 -> System.out.println("Saindo do sistema...");
                 default -> System.out.println("Opção invalida.");
             }
@@ -49,7 +52,8 @@ public class LibrarySystem {
         System.out.println("|>>>> EMPRESTADOS <<<<");
         System.out.println("|> 6. Emprestar Livro");
         System.out.println("|> 7. Devolver Livro");
-        System.out.println("|> 8. Listar Livros Emprestados");
+        System.out.println("|> 8. Detalhes do Emprestimo");
+        System.out.println("|> 9. Listar Livros Emprestados");
         System.out.println("|> 0. Sair");
         System.out.println("====================");
         System.out.println("Escolha uma opção: ");
@@ -101,6 +105,13 @@ public class LibrarySystem {
     private void excluirLivro() {
         System.out.println("Digite o ID do livro a ser excluído: ");
         int id = scanner.nextInt();
+
+        Livro livro = livroController.buscarLivro(id);
+        if (livro == null) {
+            System.out.println("Livro não encontrado!");
+            return;
+        }
+
         String retorno = livroController.excluirLivro(id);
         System.out.println(retorno);
     }
@@ -117,11 +128,43 @@ public class LibrarySystem {
     }
 
     private void emprestarLivro() {
-        // colcoar listagem de emprestados
+        System.out.println("Digite o ID do livro a ser EMPRESTADO: ");
+        int id = scanner.nextInt();
+
+        Livro livro = livroController.buscarLivro(id);
+        if (livro != null) {
+            Livro emprestadoCheck = livroController.buscarLivroEmpr(id);
+            if (emprestadoCheck == null) {
+                scanner.nextLine(); // Limpar buffer
+                System.out.println("Digite para quem o livro foi emprestado: ");
+                String membro = scanner.nextLine();
+                livro.setEmprestimoMembro(membro);
+                System.out.println("Digite quem lançou o emprestimo: ");
+                String funcionario = scanner.nextLine();
+                livro.setEmprestimoResponsavel(funcionario);
+
+                livroController.emprestaLivro(livro);
+            } else {
+                System.out.println("Livro já está emprestado! Aguarde devolução.");
+            }
+        } else {
+            System.out.println("Livro não encontrado!");
+        }
+
     };
 
     private void devolverLivro() {
-        // colcoar listagem de emprestados
+        System.out.println("Digite o ID do livro a ser devolvido: ");
+        int id_livro = scanner.nextInt();
+
+        Livro livro = livroController.buscarLivro(id_livro);
+        if (livro == null) {
+            System.out.println("Livro não encontrado!");
+            return;
+        }
+
+        String retorno = livroController.devolverLivro(id_livro);
+        System.out.println(retorno);
     };
 
     private void listarLivrosEmprestados() {
@@ -129,5 +172,16 @@ public class LibrarySystem {
         List<Livro> livros = livroController.listarLivrosEmprestados();
         livroView.mostrarListaLivros(livros);
         System.out.println("=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=");
+    }
+
+    private void buscarEmpre() {
+        System.out.println("Digite o ID do livro para consulta do emprestimo: ");
+        int id = scanner.nextInt();
+        Livro livro = livroController.buscarLivroEmpr(id);
+        if (livro != null) {
+            livroView.mostrarDetalhesEmprestimo(livro);
+        } else {
+            System.out.println("Livro não encontrado!");
+        }
     }
 }
